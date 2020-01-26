@@ -12,12 +12,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.lewisgreaves.mynews.NetworkAsyncTask;
 import com.lewisgreaves.mynews.R;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PlaceholderFragment extends Fragment {
+public class PlaceholderFragment extends Fragment implements NetworkAsyncTask.Listeners {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -40,12 +41,18 @@ public class PlaceholderFragment extends Fragment {
             index = getArguments().getInt(ARG_SECTION_NUMBER);
         }
         pageViewModel.setIndex(index);
+
+
+
     }
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+
+        this.executeHTTPRequest();
+
         View root = inflater.inflate(R.layout.fragment_main, container, false);
         final TextView textView = root.findViewById(R.id.section_label);
         pageViewModel.getText().observe(this, new Observer<String>() {
@@ -53,7 +60,18 @@ public class PlaceholderFragment extends Fragment {
             public void onChanged(@Nullable String s) {
                 textView.setText(s);
             }
+            @Override
+            public void onPostExecute(String json){
+                textView.setText(json);
+            }
         });
         return root;
     }
-}
+
+        private void executeHTTPRequest () {
+            new NetworkAsyncTask(this).execute("https://api.nytimes.com/svc/mostpopular/v2/viewed/1.json?api-key=y40F98cVAqyMCBFpoq3gdvGAdGXQjj61");
+        }
+
+
+
+    }
